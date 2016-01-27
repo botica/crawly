@@ -5,4 +5,4 @@ crawly is a web crawler. right now crawly just collects uniques urls, but other 
 
 crawly uses lxml. http://lxml.de/
 
-to use, install lxml and run with $ python main.py <START_URL>
+to use, install lxml and run with $ python main.py <START_URL> 
