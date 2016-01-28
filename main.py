@@ -1,7 +1,9 @@
 # gather 1000 unique urls and print error messages
 
+import urllib
 from lxml.html import parse
 import sys
+import time
 
 class crawler:
 
@@ -14,7 +16,8 @@ class crawler:
 		site = self.urls.pop()
 		self.duplicates.append(site)
 		try:
-			page = parse(site).getroot()
+			handle = urllib.urlopen(site)
+			page = parse(handle).getroot()
 			return page
 		except IOError as e:
 			print e
@@ -48,3 +51,9 @@ if len(crawly.urls) > 1000:
 	print 'success!'
 else:
 	print 'no more links!'
+
+response = raw_input('view urls? y/n\n')
+if response == 'y':
+	for url in crawly.urls:
+		print url
+		time.sleep(.01)
