@@ -1,6 +1,6 @@
 # crawly
 
-crawly is a web crawler.
+crawly is a python scrapt that gathers urls from webpages.
 
 crawly uses lxml. http://lxml.de/
 
