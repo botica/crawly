@@ -1,14 +1,23 @@
-# stop at 1000 urls
-# time it and print duration after program ends
-# not download and try to parse images
-# calc approx time of printing at end and print
-
 import urllib
 from lxml.html import parse
 import sys
 import time
 
-URL_LIMIT = 500
+URL_LIMIT = 300
+
+def is_image(url):
+	'returns true if url is common image, false if not'
+	if url.endswith('.jpg') or url.endswith('.png') or url.endswith('.gif') or url.endswith('.gifv') or url.endswith('.svg') or url.endswith('.swf') or url.endswith('.bmp') or url.endswith('pdf'):
+		return True
+	else:
+		return False
+
+def is_script(url):
+	'returns true if javascript, false if not'
+	if url.startswith('javascript') or url.startswith('mailto') or url.startswith('tel'):
+		return True
+	else:
+		return False
 
 class crawler:
 
@@ -17,6 +26,13 @@ class crawler:
 		self.duplicates = []
 		self.popped = []
 		self.urls.append(start_url)
+		self.fetched = 0
+		self.link_total = 0
+
+	def total_urls(self):
+		'returns number of total urls'
+		return len(self.urls) + len(self.popped)
+
 
 	def get_page(self):
 		site = self.urls.pop()
@@ -26,6 +42,7 @@ class crawler:
 		try:
 			handle = urllib.urlopen(site)
 			page = parse(handle).getroot()
+			self.fetched += 1
 			return page
 		except IOError as e:
 			print 'problem getting ' + str(site)
@@ -39,10 +56,15 @@ class crawler:
 			if link[1] == 'href':
 				url = link[2]
 				if url not in self.duplicates and url not in self.urls: # new find
-					self.urls.append(url) # add it to list of urls to be crawled
-					links += 1
-				elif url in self.urls and url not in self.duplicates: # waiting to be crawled, add to duplicates
-					self.duplicates.append(url)
+					if (not is_image(url)) and (not is_script(url)): # only want parsable documents
+						if url in self.urls and url not in self.duplicates: # waiting to be crawled, add to duplicates
+							self.duplicates.append(url)
+						else:
+							self.urls.append(url) # add it to list of urls to be crawled
+							links += 1
+							self.link_total += 1
+							if (len(self.urls) + len(crawly.popped)) == URL_LIMIT:
+								return
 		print str(links) + ' new links gathered'
 
 
@@ -51,18 +73,22 @@ if len(sys.argv) == 2:
 else:
 	print 'run as\n$ python main.py <START_URL>'
 	sys.exit()
-
 crawly = crawler(start_url)
+print 'scraping for ' + str(URL_LIMIT) + ' uniques urls.'
+start_time = time.time()
 
-while (0 < (len(crawly.urls) + len(crawly.popped)) < URL_LIMIT) and (len(crawly.urls) > 0):
+while (0 < crawly.total_urls() < URL_LIMIT) and (len(crawly.urls) > 0):
 	page = crawly.get_page()
 	if page != None:
 		crawly.scrape_links(page)	
-	print str(len(crawly.urls) + len(crawly.popped)) + ' unique links so far'
-	print str(len(crawly.popped)) + ' resources fetched (attempted)'
+	print str(crawly.total_urls()) + ' unique links'
+	print str(crawly.fetched) + ' resources fetched'
 
-if len(crawly.urls) > URL_LIMIT:
-	print 'success! the url limit has been reached!'
+if crawly.total_urls() == URL_LIMIT:
+	print 'success! the limit of ' + str(URL_LIMIT) + ' urls has been reached!'
+	duration = time.time() - start_time
+	duration = duration % 100
+	print 'took ' + str(duration) + ' seconds!'
 else:
 	print 'out of links!'
 
