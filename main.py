@@ -1,4 +1,7 @@
-# gather 1000 unique urls and print error messages
+# combine urls and dups for unique count
+# stop at 1000 urls
+# print how many links found on which page while scraping
+# time it and print duration after program ends
 
 import urllib
 from lxml.html import parse
