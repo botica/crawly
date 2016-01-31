@@ -13,7 +13,7 @@ def is_image(url):
 		return False
 
 def is_script(url):
-	'returns true if javascript, false if not'
+	'returns true if script, false if not'
 	if url.startswith('javascript') or url.startswith('mailto') or url.startswith('tel'):
 		return True
 	else:
@@ -23,7 +23,6 @@ class crawler:
 
 	def __init__(self, start_url):
 		self.urls = []
-		self.duplicates = []
 		self.popped = []
 		self.urls.append(start_url)
 		self.fetched = 0
@@ -37,7 +36,6 @@ class crawler:
 	def get_page(self):
 		site = self.urls.pop()
 		self.popped.append(site)
-		self.duplicates.append(site)
 		print 'fetching ' + str(site)
 		try:
 			handle = urllib.urlopen(site)
@@ -50,22 +48,19 @@ class crawler:
 			return None
 
 	def scrape_links(self, page):
-		links = 0
+		new_links = 0
 		page.make_links_absolute()
 		for link in page.iterlinks():
 			if link[1] == 'href':
 				url = link[2]
-				if url not in self.duplicates and url not in self.urls: # new find
+				if url not in self.popped and url not in self.urls: # new find
 					if (not is_image(url)) and (not is_script(url)): # only want parsable documents
-						if url in self.urls and url not in self.duplicates: # waiting to be crawled, add to duplicates
-							self.duplicates.append(url)
-						else:
-							self.urls.append(url) # add it to list of urls to be crawled
-							links += 1
-							self.link_total += 1
-							if (len(self.urls) + len(crawly.popped)) == URL_LIMIT:
-								return
-		print str(links) + ' new links gathered'
+						self.urls.append(url) # add it to list of urls to be crawled
+						new_links += 1
+						self.link_total += 1
+						if self.total_urls() == URL_LIMIT:
+							return
+		print str(new_links) + ' new links gathered'
 
 
 if len(sys.argv) == 2:
@@ -85,10 +80,10 @@ while (0 < crawly.total_urls() < URL_LIMIT) and (len(crawly.urls) > 0):
 	print str(crawly.fetched) + ' resources fetched'
 
 if crawly.total_urls() == URL_LIMIT:
-	print 'success! the limit of ' + str(URL_LIMIT) + ' urls has been reached!'
+	print 'success!\nthe limit of ' + str(URL_LIMIT) + ' urls has been reached!'
 	duration = time.time() - start_time
 	duration = duration % 100
-	print 'took ' + str(duration) + ' seconds!'
+	print 'took ' + str(int(duration)) + ' seconds!'
 else:
 	print 'out of links!'
 
