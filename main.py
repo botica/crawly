@@ -3,7 +3,7 @@ from lxml.html import parse
 import sys
 import time
 
-URL_LIMIT = 300
+URL_LIMIT = 500
 
 def is_image(url):
 	'returns true if url is common image, false if not'
@@ -32,12 +32,11 @@ class crawler:
 		'returns number of total urls'
 		return len(self.urls) + len(self.popped)
 
-
 	def get_page(self):
 		site = self.urls.pop()
 		self.popped.append(site)
-		print 'fetching ' + str(site)
 		try:
+			print 'fetching ' + str(site)
 			handle = urllib.urlopen(site)
 			page = parse(handle).getroot()
 			self.fetched += 1
@@ -45,6 +44,12 @@ class crawler:
 		except IOError as e:
 			print 'problem getting ' + str(site)
 			print e
+			return None
+		except UnicodeEncodeError:
+			print 'problem parsing site'
+			return None
+		except UnicodeError:
+			print 'problem parsing site'
 			return None
 
 	def scrape_links(self, page):
@@ -66,7 +71,7 @@ class crawler:
 if len(sys.argv) == 2:
 	start_url = sys.argv[1]
 else:
-	print 'run as\n$ python main.py <START_URL>'
+	print 'run as:\n$python main.py <START_URL>'
 	sys.exit()
 crawly = crawler(start_url)
 print 'scraping for ' + str(URL_LIMIT) + ' uniques urls.'
@@ -94,6 +99,8 @@ if response == 'y':
 		print_urls.append(url)
 	print_urls.sort()
 	for url in print_urls:
-		print url
-		time.sleep(.01)
-
+		try:
+			print url
+			time.sleep(.01)
+		except UnicodeEncodeError:
+			print "can't print site"
