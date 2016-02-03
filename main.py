@@ -26,7 +26,6 @@ class crawler:
 		self.popped = []
 		self.urls.append(start_url)
 		self.fetched = 0
-		self.link_total = 0
 
 	def total_urls(self):
 		'returns number of total urls'
@@ -62,7 +61,6 @@ class crawler:
 					if (not is_image(url)) and (not is_script(url)): # only want parsable documents
 						self.urls.append(url) # add it to list of urls to be crawled
 						new_links += 1
-						self.link_total += 1
 						if self.total_urls() == URL_LIMIT:
 							return
 		print str(new_links) + ' new links gathered'
@@ -93,7 +91,7 @@ else:
 	print 'out of links!'
 
 response = raw_input('view urls? y/n\n')
-if response == 'y':
+if response == 'y' or response == 'yes':
 	print_urls = crawly.urls
 	for url in crawly.popped:
 		print_urls.append(url)
@@ -101,6 +99,6 @@ if response == 'y':
 	for url in print_urls:
 		try:
 			print url
-			time.sleep(.01)
 		except UnicodeEncodeError:
 			print "can't print site"
+		time.sleep(.01)
