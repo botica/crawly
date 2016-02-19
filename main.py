@@ -1,4 +1,4 @@
-# minimal crawler script. gathers unique 'href' attrs from <a> tags, searchs breadth first, crawls until URL_LIMIT is reached. view urls on completion optional. prints updates to console.
+# gathers unique 'href' attrs from <a> tags, searchs breadth first, crawls until URL_LIMIT is reached. view urls on completion optional
 
 import urllib
 from lxml.html import parse
@@ -80,7 +80,7 @@ crawly = crawler(start_url)
 print 'scraping for ' + str(URL_LIMIT) + ' uniques urls.'
 start_time = time.time()
 
-while (0 < crawly.total_urls() < URL_LIMIT) and (len(crawly.urls) > 0): 		  # only want URL_LIMIT urls
+while (0 < crawly.total_urls() < URL_LIMIT) and (len(crawly.urls) > 0):
 	page = crawly.get_page()
 	if page != None:
 		crawly.scrape_links(page)	
@@ -95,7 +95,7 @@ if crawly.total_urls() == URL_LIMIT:
 else:
 	print 'out of links!'
 
-response = raw_input('view urls? y/n\n')						  # prompt user to print urls
+response = raw_input('view urls? y/n\n')
 if response.upper() == 'y'.upper() or response == 'yes'.upper():
 	print_urls = crawly.urls
 	for url in crawly.popped:
