@@ -1,4 +1,4 @@
-# gathers unique 'href' attrs from <a> tags, searchs breadth first, crawls until URL_LIMIT is reached. view urls on completion optional
+# gathers unique 'href' attrs from <a> tag and crawls until URL_LIMIT is reached. view urls on completion optional
 
 import urllib
 from lxml.html import parse
